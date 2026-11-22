@@ -1,0 +1,8 @@
+{
+  "name": "Detektif Kolam: Kasus Misterius di Kolam Desa",
+  "description": "Media presentasi kelas interaktif IPAS Kelas V SD/MI materi Berkenalan dengan Ekosistem dengan model Numbered Heads Together (offline single-file).",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
