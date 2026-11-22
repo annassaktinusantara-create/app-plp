@@ -100,6 +100,18 @@
       background: radial-gradient(circle at center, #1B2736 0%, #0E141C 100%);
     }
 
+    html:fullscreen,
+    html:-webkit-full-screen,
+    body:fullscreen,
+    body:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: clip !important;
+      background: #0E141C !important;
+    }
+
     /* Panggung tetap 1920x1080 */
     #stage {
       position: relative;
@@ -1342,7 +1354,7 @@
        GAYA SLIDE 19 - 31 (TAHAP 3)
        ===================================================================== */
     .slide-header-bar.with-mini {
-      padding-right: 440px;
+      padding-right: 660px;
     }
 
     /* Slide 19: Tim Detektif NHT */
@@ -1918,6 +1930,53 @@
       display: none;
     }
 
+    /* Sembunyikan bilah HUD untuk layar penuh bersih (tekan U / tombol di pengaturan) */
+    #hud {
+      transition: transform 0.24s ease-out, opacity 0.24s ease-out;
+    }
+
+    body.hud-tersembunyi #hud {
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.hud-tersembunyi #slide-area {
+      height: 1080px;
+      padding-bottom: 36px;
+    }
+
+    #hud-restore-btn {
+      position: absolute;
+      right: 20px;
+      bottom: 14px;
+      z-index: 60;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 248, 236, 0.45);
+      background: rgba(15, 34, 54, 0.78);
+      color: #FFF8EC;
+      font-family: var(--font-main);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      opacity: 0.35;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    body.hud-tersembunyi #hud-restore-btn {
+      display: inline-flex;
+    }
+
+    #hud-restore-btn:hover,
+    #hud-restore-btn:focus-visible {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
     /* =====================================================================
        PANEL ALAT GLOBAL MELAYANG (DI ATAS PANGGUNG)
        ===================================================================== */
@@ -2418,8 +2477,13 @@
           <span id="hud-slide-num" class="hud-slide-num">1/31</span>
           <button id="hud-next-btn" class="hud-btn" type="button" aria-label="Langkah Berikutnya">▶</button>
           <span id="hud-clock" class="hud-clock" title="Jam pelajaran berjalan (tekan J untuk sembunyikan)">⏱ 00:00</span>
+          <button id="hud-fullscreen-btn" class="hud-btn" type="button" title="Layar Penuh Sejati (F)" aria-pressed="false" aria-label="Layar Penuh Sejati">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span id="hud-fs-label">Penuh</span>
+          </button>
         </div>
       </footer>
+      <button id="hud-restore-btn" type="button" title="Tampilkan Bilah Bawah (U)" aria-label="Tampilkan Bilah Bawah">▲ Bilah (U)</button>
 
       <!-- PANEL PAPAN POIN -->
       <section id="panel-poin" class="floating-panel" role="dialog" aria-label="Papan Poin Tim">
@@ -2539,6 +2603,11 @@
               <button id="toggle-gelap" class="btn" type="button" style="font-size:22px; padding:10px 18px;">🌙 Tema Gelap (D)</button>
               <button id="toggle-jam" class="btn" type="button" style="font-size:22px; padding:10px 18px;">⏱ Jam Pelajaran (J)</button>
               <button id="toggle-suara" class="btn" type="button" style="font-size:22px; padding:10px 18px;">🔊 Suara (S)</button>
+              <button id="toggle-fullscreen" class="btn" type="button" style="font-size:22px; padding:10px 18px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                <span id="panel-fs-label">Layar Penuh (F)</span>
+              </button>
+              <button id="toggle-hud" class="btn" type="button" style="font-size:22px; padding:10px 18px;">👁️ Bilah Bawah: Tampil (U)</button>
               <button id="btn-open-edit" class="btn" type="button" style="font-size:22px; padding:10px 18px;">🛠️ Mode Edit (E)</button>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:10px;">
@@ -2565,7 +2634,8 @@
             <div class="help-row"><span>Langkah / Slide Berikutnya</span><kbd>→ ↓ Spasi Enter PageDown</kbd></div>
             <div class="help-row"><span>Langkah / Slide Sebelumnya</span><kbd>← ↑ PageUp</kbd></div>
             <div class="help-row"><span>Slide Pertama / Terakhir</span><kbd>Home / End</kbd></div>
-            <div class="help-row"><span>Layar Penuh (Fullscreen)</span><kbd>F</kbd></div>
+            <div class="help-row"><span>Layar Penuh Sejati (Fullscreen)</span><kbd>F / F11</kbd></div>
+            <div class="help-row"><span>Sembunyikan / Tampilkan Bilah Bawah</span><kbd>U</kbd></div>
             <div class="help-row"><span>Layar Hitam "Perhatikan Guru"</span><kbd>B atau .</kbd></div>
             <div class="help-row"><span>Papan Poin Tim</span><kbd>P (1–5 / Shift+1–5)</kbd></div>
             <div class="help-row"><span>Roda Putar Tim &amp; Nomor</span><kbd>R</kbd></div>
@@ -3018,8 +3088,8 @@
           data: {
             judul: "BAGIKAN LKPD",
             langkahBagikan: [
-              { ikon: "📄", teks: "1 LKPD untuk setiap tim" },
-              { ikon: "✍️", teks: "Tulis nama tim dan semua nomor kepala" },
+              { ikon: "📄", teks: "1 LKPD untuk setiap anak" },
+              { ikon: "✍️", teks: "Tulis NAMA, TIM, dan NOMOR kepalamu" },
               { ikon: "👀", teks: "Tunggu contoh guru, jangan kerjakan dulu!" }
             ]
           }
@@ -3217,7 +3287,7 @@
           catatan: "Tutup pembelajaran dengan doa bersama dan pesan menjaga lingkungan sekitar.",
           data: {
             judul: "MISI DI RUMAH",
-            misi: "🔍 Amati 1 tempat di sekitar rumahmu (halaman, selokan, atau pot bunga). Catat 3 BIOTIK dan 3 ABIOTIK!",
+            misi: "🔍 Amati 1 tempat di sekitar rumahmu (halaman, selokan, atau pot bunga). Catat 5 BIOTIK dan 5 ABIOTIK bersama orang tua!",
             penutup: "Jaga lingkungan kita 🌏 Terima kasih, Detektif!",
             doa: "🤲 Mari tutup pelajaran hari ini dengan berdoa bersama."
           }
@@ -3321,7 +3391,10 @@
       s11PopCount: 0,
       s11PoppedMap: {},
       s11BubbleFeedback: "",
-      s11BubbleTimers: []
+      s11BubbleTimers: [],
+
+      // Status bilah bawah & layar penuh
+      hudHidden: false
     };
 
     /* =====================================================================
@@ -3512,28 +3585,76 @@
        SKALA PANGGUNG 1920x1080
        ===================================================================== */
     function scaleStage() {
-      var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+      var w = window.innerWidth || document.documentElement.clientWidth || 1920;
+      var h = window.innerHeight || document.documentElement.clientHeight || 1080;
+      var scale = Math.min(w / 1920, h / 1080);
       elStage.style.transform = "scale(" + scale + ")";
     }
     window.addEventListener("resize", scaleStage);
     scaleStage();
 
     /* =====================================================================
-       TERAPKAN PENGATURAN TEMA & ANIMASI
+       TERAPKAN PENGATURAN TEMA, ANIMASI, & LAYAR PENUH
        ===================================================================== */
+    function getFullscreenElement() {
+      return document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement ||
+        null;
+    }
+
+    function updateFullscreenUI() {
+      var isFs = !!getFullscreenElement();
+      document.body.classList.toggle("is-fullscreen", isFs);
+      var hudBtn = document.getElementById("hud-fullscreen-btn");
+      var hudLbl = document.getElementById("hud-fs-label");
+      var panelBtn = document.getElementById("toggle-fullscreen");
+      var panelLbl = document.getElementById("panel-fs-label");
+      var iconExpand = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+      var iconCompress = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+
+      if (hudBtn) {
+        hudBtn.classList.toggle("active", isFs);
+        hudBtn.setAttribute("aria-pressed", isFs ? "true" : "false");
+        hudBtn.title = isFs ? "Keluar Layar Penuh (F / Esc)" : "Layar Penuh Sejati (F)";
+        var hSvg = hudBtn.querySelector("svg");
+        if (hSvg) hSvg.innerHTML = isFs ? iconCompress : iconExpand;
+      }
+      if (hudLbl) hudLbl.textContent = isFs ? "Keluar" : "Penuh";
+
+      if (panelBtn) {
+        panelBtn.classList.toggle("btn-emas", isFs);
+        var pSvg = panelBtn.querySelector("svg");
+        if (pSvg) pSvg.innerHTML = isFs ? iconCompress : iconExpand;
+      }
+      if (panelLbl) panelLbl.textContent = isFs ? "Keluar Layar Penuh (F)" : "Layar Penuh (F)";
+    }
+
+    function toggleHudVisibility(forceVal) {
+      state.hudHidden = typeof forceVal === "boolean" ? forceVal : !state.hudHidden;
+      document.body.classList.toggle("hud-tersembunyi", state.hudHidden);
+      applySettingsUI();
+      showToast(state.hudHidden ? "👁️ Bilah bawah disembunyikan (tekan U untuk munculkan)" : "👁️ Bilah bawah ditampilkan");
+    }
+
     function applySettingsUI() {
       document.body.classList.toggle("tema-gelap", !!state.settings.temaGelap);
       document.body.classList.toggle("kurangi-animasi", !!state.settings.kurangiAnimasi);
+      document.body.classList.toggle("hud-tersembunyi", !!state.hudHidden);
       elHudClock.classList.toggle("hidden", !state.settings.tampilJam);
 
       var bAnim = document.getElementById("toggle-animasi");
       var bGelap = document.getElementById("toggle-gelap");
       var bJam = document.getElementById("toggle-jam");
       var bSuara = document.getElementById("toggle-suara");
+      var bHud = document.getElementById("toggle-hud");
       if (bAnim) bAnim.textContent = state.settings.kurangiAnimasi ? "✨ Animasi: Dikurangi" : "✨ Animasi: Aktif";
       if (bGelap) bGelap.textContent = state.settings.temaGelap ? "☀️ Tema Terang (D)" : "🌙 Tema Gelap (D)";
       if (bJam) bJam.textContent = state.settings.tampilJam ? "⏱ Jam: Tampil (J)" : "⏱ Jam: Sembunyi (J)";
       if (bSuara) bSuara.textContent = state.settings.suara ? "🔊 Suara: Hidup (S)" : "🔇 Suara: Mati (S)";
+      if (bHud) bHud.textContent = state.hudHidden ? "👁️ Bilah Bawah: Sembunyi (U)" : "👁️ Bilah Bawah: Tampil (U)";
+      updateFullscreenUI();
     }
 
     /* =====================================================================
@@ -6795,6 +6916,23 @@
       saveStorage("settings", state.settings);
       applySettingsUI();
     });
+    document.getElementById("toggle-fullscreen").addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (!getFullscreenElement()) closePanels();
+      toggleFullscreen();
+    });
+    document.getElementById("toggle-hud").addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleHudVisibility();
+    });
+    document.getElementById("hud-fullscreen-btn").addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleFullscreen();
+    });
+    document.getElementById("hud-restore-btn").addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleHudVisibility(false);
+    });
     document.getElementById("btn-open-edit").addEventListener("click", function () { openPanel("edit"); });
     document.getElementById("btn-open-edit-from-note").addEventListener("click", function () { openPanel("edit"); });
     document.getElementById("btn-export-json").addEventListener("click", exportSettingsJSON);
@@ -6832,11 +6970,52 @@
       elBlackout.classList.remove("open");
     });
 
+    function requestFullscreenCompat(el) {
+      if (el.requestFullscreen) {
+        try {
+          var p = el.requestFullscreen({ navigationUI: "hide" });
+          if (p && typeof p.catch === "function") {
+            return p.catch(function () { return el.requestFullscreen(); });
+          }
+          return Promise.resolve();
+        } catch (err) {
+          return el.requestFullscreen();
+        }
+      }
+      if (el.webkitRequestFullscreen) return Promise.resolve(el.webkitRequestFullscreen());
+      if (el.mozRequestFullScreen) return Promise.resolve(el.mozRequestFullScreen());
+      if (el.msRequestFullscreen) return Promise.resolve(el.msRequestFullscreen());
+      return Promise.reject(new Error("Fullscreen tidak didukung"));
+    }
+
+    function exitFullscreenCompat() {
+      if (document.exitFullscreen) return document.exitFullscreen();
+      if (document.webkitExitFullscreen) return Promise.resolve(document.webkitExitFullscreen());
+      if (document.mozCancelFullScreen) return Promise.resolve(document.mozCancelFullScreen());
+      if (document.msExitFullscreen) return Promise.resolve(document.msExitFullscreen());
+      return Promise.resolve();
+    }
+
+    function onFullscreenChanged() {
+      updateFullscreenUI();
+      scaleStage();
+      setTimeout(scaleStage, 80);
+      setTimeout(scaleStage, 240);
+    }
+    document.addEventListener("fullscreenchange", onFullscreenChanged);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChanged);
+
     function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(function () {});
+      if (!getFullscreenElement()) {
+        requestFullscreenCompat(document.documentElement).then(function () {
+          onFullscreenChanged();
+        }).catch(function () {
+          showToast("⚠️ Tekan F11 pada keyboard untuk layar penuh browser");
+        });
       } else {
-        document.exitFullscreen().catch(function () {});
+        exitFullscreenCompat().then(function () {
+          onFullscreenChanged();
+        }).catch(function () {});
       }
     }
 
@@ -6917,6 +7096,7 @@
       }
 
       if (lower === "f") { e.preventDefault(); toggleFullscreen(); }
+      else if (lower === "u") { e.preventDefault(); toggleHudVisibility(); }
       else if (lower === "p") { e.preventDefault(); openPanel("poin"); }
       else if (lower === "r") { e.preventDefault(); openPanel("roda"); }
       else if (lower === "t") { e.preventDefault(); openPanel("timer"); }
