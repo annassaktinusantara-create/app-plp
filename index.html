@@ -2114,8 +2114,8 @@
     #panel-roda {
       top: 48px;
       left: 50%;
-      margin-left: -490px;
-      width: 980px;
+      margin-left: -530px;
+      width: 1060px;
       max-height: 940px;
     }
 
@@ -2159,6 +2159,77 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+    }
+
+    .embed-roda-card {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 32px;
+      align-items: center;
+      padding: 20px 34px;
+    }
+
+    .embed-roda-modes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-roda-sm {
+      font-size: 22px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border-width: 3px;
+    }
+
+    .embed-nomor-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--bg-card-soft);
+      border: 3px solid var(--border-main);
+      border-radius: 18px;
+      padding: 10px 16px;
+    }
+
+    .embed-nomor-chip {
+      min-width: 50px;
+      height: 48px;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: 3px solid #17324D;
+      font-size: 25px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.18s ease;
+    }
+
+    .embed-nomor-chip.active {
+      transform: scale(1.16);
+      box-shadow: 0 0 0 5px #F2B705;
+    }
+
+    .embed-nomor-chip.used {
+      opacity: 0.42;
+      text-decoration: line-through;
+    }
+
+    #embed-roda-result.roda-result-box {
+      min-height: 172px;
+      padding: 16px 22px;
+    }
+
+    .roda-fair-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     /* Timer */
@@ -2509,17 +2580,18 @@
           <button class="panel-close" data-close="roda" type="button" aria-label="Tutup Roda Putar">✕</button>
         </div>
         <div class="panel-body">
-          <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-            <button class="btn roda-mode-btn btn-emas" data-mode="tim-nomor" type="button">Tim + Nomor</button>
-            <button class="btn roda-mode-btn" data-mode="tim" type="button">Tim Saja (1–5)</button>
-            <button class="btn roda-mode-btn" data-mode="nomor" type="button">Nomor Saja (1–6)</button>
+          <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-roda-sm roda-mode-btn btn-emas" data-mode="tim-nomor" type="button">🎯 Tim + Nomor</button>
+            <button class="btn btn-roda-sm roda-mode-btn" data-mode="tim" type="button">🎨 Tim (1–5)</button>
+            <button class="btn btn-roda-sm roda-mode-btn" data-mode="nomor" type="button">🔢 Nomor (1–6)</button>
+            <button id="btn-shuffle-roda" class="btn btn-roda-sm btn-cokelat" type="button" style="margin-left:auto;">🔀 Acak Nomor &amp; Warna</button>
           </div>
           <div class="roda-layout">
             <div class="roda-wheel-wrap">
               <div class="roda-pointer"></div>
               <svg id="roda-svg" width="420" height="420" viewBox="0 0 420 420" aria-label="Roda Segmen"></svg>
             </div>
-            <div style="display:flex; flex-direction:column; gap:18px;">
+            <div style="display:flex; flex-direction:column; gap:16px;">
               <div id="roda-result" class="roda-result-box">
                 <div style="font-size:28px; color:var(--text-muted); font-weight:700;">Siap memilih detektif...</div>
                 <div style="font-size:52px; font-weight:900;">Tekan PUTAR!</div>
@@ -2527,6 +2599,10 @@
               <button id="btn-spin-roda" class="btn btn-emas" type="button" style="font-size:36px; padding:18px 28px;">
                 🎡 PUTAR RODA!
               </button>
+              <div class="roda-fair-bar">
+                <span id="roda-fair-info" style="font-size:20px; font-weight:800; color:var(--text-muted);">Giliran adil: 0/5 Tim · 0/6 Nomor</span>
+                <button id="btn-reset-fair-roda" class="btn" type="button" style="font-size:19px; padding:8px 14px;">↺ Reset Giliran</button>
+              </div>
             </div>
           </div>
         </div>
@@ -3181,8 +3257,8 @@
           bagian: "Tim Detektif · Tebak Cepat",
           judul: "Tebak Cepat (5 Soal)",
           menit: 61,
-          langkah: 10,
-          catatan: "Klik tombol 5 detik tiap soal, lalu klik tombol +1 (+2 di soal ke-5) di bilah tim bawah untuk memberi poin.",
+          langkah: 4,
+          catatan: "Klik tombol 5 detik tiap soal, lalu klik tombol Buka Jawaban (hanya tombol ini yang membuka jawaban). Klik +1/+2 di bilah tim bawah untuk memberi poin.",
           data: {
             gambar: "gambar/kuis.png",
             soal: [
@@ -3351,6 +3427,11 @@
       rodaAngle: 0,
       rodaSpinning: false,
       lastRodaResult: "",
+      rodaTeamOrder: [0, 1, 2, 3, 4],
+      rodaNomorOrder: [1, 2, 3, 4, 5, 6],
+      rodaNomorColorOrder: [0, 1, 2, 3, 4, 5],
+      rodaUsedTeams: [],
+      rodaUsedNumbers: [],
 
       // Status timer (berbasis Date.now())
       timerDurationMs: 180000,
@@ -3378,13 +3459,22 @@
       embedTimerRunning: false,
       embedTimerIv: null,
       embedTimerLastWhole: 180,
+      embedRodaMode: "tim-nomor",
       embedRodaAngle: 0,
       embedRodaSpinning: false,
       embedRodaResultHtml: "",
+      embedTeamOrder: [0, 1, 2, 3, 4],
+      embedNomorOrder: [1, 2, 3, 4, 5, 6],
+      embedNomorColorOrder: [0, 1, 2, 3, 4, 5],
+      embedUsedTeams: [],
+      embedUsedNumbers: [],
+      embedRodaSlideNo: null,
+      embedHighlightNomor: null,
       tcTimerEnd: null,
       tcTimerIv: null,
       tcTimerLastSec: 5,
       s25UseBackup: false,
+      s25Revealed: {},
       confettiRaf: null,
 
       // Status gelembung interaktif Slide 11
@@ -5014,18 +5104,40 @@
           '<p class="teks-kecil" style="color:var(--text-muted);">' + escapeHtml(d.instruksi) + '</p>' +
           '</div>';
       } else if (step === 4) {
-        // Langkah 5: Roda Putar Tim + Nomor Tertanam
-        bodyHtml = '<div class="kartu pop-in" style="flex:1; display:grid; grid-template-columns:460px 1fr; gap:36px; align-items:center; padding:26px 40px;">' +
-          '<div class="roda-wheel-wrap">' +
-            '<div class="roda-pointer"></div>' +
-            '<svg id="embed-roda-svg" width="420" height="420" viewBox="0 0 420 420" aria-label="Roda Putar Tim"></svg>' +
-          '</div>' +
-          '<div style="display:flex; flex-direction:column; gap:22px; align-items:stretch;">' +
-            '<div style="font-size:48px; font-weight:900;">🎡 Waktunya menjawab!</div>' +
-            '<div id="embed-roda-result" class="roda-result-box">' +
-              (state.embedRodaResultHtml || '<div style="font-size:34px; color:var(--text-muted); font-weight:800;">Tekan tombol di bawah untuk memilih Tim &amp; Nomor Kepala!</div>') +
+        // Langkah 5: Roda Putar Tim / Nomor Tertanam yang Dapat Diacak & Adil
+        var modeNow = state.embedRodaMode || "tim-nomor";
+        var spinLabel = modeNow === "nomor"
+          ? "🎡 PUTAR RODA NOMOR (1–6)!"
+          : (modeNow === "tim" ? "🎡 PUTAR RODA WARNA TIM!" : "🎡 PUTAR RODA TIM + NOMOR!");
+        var defaultResHtml = modeNow === "nomor"
+          ? '<div style="font-size:32px; color:var(--text-muted); font-weight:800;">Tekan PUTAR untuk memilih Nomor Kepala (1–6)!</div>'
+          : (modeNow === "tim"
+            ? '<div style="font-size:32px; color:var(--text-muted); font-weight:800;">Tekan PUTAR untuk memilih Warna Tim!</div>'
+            : '<div style="font-size:32px; color:var(--text-muted); font-weight:800;">Tekan PUTAR untuk memilih Tim &amp; Nomor Kepala!</div>');
+        bodyHtml = '<div class="kartu pop-in embed-roda-card">' +
+          '<div style="display:flex; flex-direction:column; align-items:center; gap:12px;">' +
+            '<div class="roda-wheel-wrap">' +
+              '<div class="roda-pointer"></div>' +
+              '<svg id="embed-roda-svg" width="420" height="420" viewBox="0 0 420 420" aria-label="Roda Putar Tim dan Nomor"></svg>' +
             '</div>' +
-            '<button id="btn-embed-spin" class="btn btn-emas" type="button" style="font-size:40px; padding:20px 32px;">🎡 PUTAR RODA TIM + NOMOR!</button>' +
+            '<div style="font-size:22px; font-weight:800; color:var(--text-muted); text-align:center;">Urutan posisi, nomor &amp; warna dapat diacak adil</div>' +
+          '</div>' +
+          '<div style="display:flex; flex-direction:column; gap:14px; align-items:stretch;">' +
+            '<div class="embed-roda-modes">' +
+              '<button class="btn btn-roda-sm embed-roda-mode-btn' + (modeNow === "tim-nomor" ? " btn-emas" : "") + '" data-mode="tim-nomor" type="button">🎯 Tim + Nomor</button>' +
+              '<button class="btn btn-roda-sm embed-roda-mode-btn' + (modeNow === "tim" ? " btn-emas" : "") + '" data-mode="tim" type="button">🎨 Warna Tim</button>' +
+              '<button class="btn btn-roda-sm embed-roda-mode-btn' + (modeNow === "nomor" ? " btn-emas" : "") + '" data-mode="nomor" type="button">🔢 Nomor (1–6)</button>' +
+              '<button id="btn-embed-shuffle" class="btn btn-roda-sm btn-cokelat" type="button" style="margin-left:auto;">🔀 Acak Nomor &amp; Warna</button>' +
+            '</div>' +
+            '<div id="embed-nomor-strip" class="embed-nomor-strip"></div>' +
+            '<div id="embed-roda-result" class="roda-result-box">' +
+              (state.embedRodaResultHtml || defaultResHtml) +
+            '</div>' +
+            '<button id="btn-embed-spin" class="btn btn-emas" type="button" style="font-size:36px; padding:16px 28px;">' + spinLabel + '</button>' +
+            '<div class="roda-fair-bar">' +
+              '<span id="embed-roda-fair-info" style="font-size:22px; font-weight:800; color:var(--text-muted);"></span>' +
+              '<button id="btn-embed-reset-fair" class="btn btn-roda-sm" type="button" style="font-size:20px; padding:8px 14px;">↺ Reset Giliran</button>' +
+            '</div>' +
           '</div>' +
           '</div>';
       } else {
@@ -5141,7 +5253,7 @@
       var step = state.stepIdx;
       var teamBar = '<div class="s25-team-bar">' +
         state.teams.map(function (t, i) {
-          var pts = (!state.s25UseBackup && step >= 8) ? 2 : 1;
+          var pts = (!state.s25UseBackup && step >= 4) ? 2 : 1;
           return '<div class="s25-team-chip" style="background:' + t.warna + '; color:' + t.teks + ';">' +
             '<span>T' + (i + 1) + ': <strong id="s25-score-' + i + '">' + t.poin + '</strong></span>' +
             '<div style="display:flex; gap:6px;">' +
@@ -5153,18 +5265,31 @@
       '</div>';
 
       var q = null;
-      var showAns = false;
+      var qKey = "";
       if (state.s25UseBackup) {
         q = d.cadangan;
-        showAns = (step % 2) === 1 || step === 0;
+        qKey = "backup";
       } else {
-        var qIdx = Math.min(4, Math.floor(step / 2));
+        var qIdx = Math.min(4, Math.max(0, step));
         q = d.soal[qIdx];
-        showAns = (step % 2) === 1;
+        qKey = "q" + qIdx;
       }
+      var showAns = !!(state.s25Revealed && state.s25Revealed[qKey]);
 
       var isAlami = q.jawab === "ALAMI";
       var badge = q.bonus ? '<span class="label-berkas" style="background:var(--stamp-red); color:#FFF;">' + escapeHtml(q.bonus) + '</span>' : '<span class="label-berkas">SOAL ' + q.no + ' / 5</span>';
+
+      var answerArea = "";
+      if (showAns) {
+        answerArea = '<div class="s3-answer-box pop-in" style="background:' + (isAlami ? "var(--alami)" : "var(--buatan)") + '; color:#FFF;">' + (isAlami ? "🌳 " : "🛠️ ") + q.jawab + '</div>' +
+          '<p class="teks-kecil pop-in" style="font-size:28px;">' + escapeHtml(q.info) + '</p>' +
+          '<button id="btn-s25-reveal" class="btn" data-qkey="' + qKey + '" type="button" style="font-size:22px; padding:8px 18px;">🔒 Tutup Jawaban</button>';
+      } else {
+        answerArea = '<div class="kartu-lembut" style="width:100%; max-width:520px; padding:14px 20px; border-color:var(--accent-brown); display:flex; flex-direction:column; align-items:center; gap:10px;">' +
+          '<span style="font-size:23px; font-weight:800; color:var(--text-muted);">🔒 Jawaban dikunci agar tidak terbuka saat salah sentuh</span>' +
+          '<button id="btn-s25-reveal" class="btn btn-hijau" data-qkey="' + qKey + '" type="button" style="font-size:28px; padding:12px 28px;">🔓 Buka Jawaban</button>' +
+        '</div>';
+      }
 
       return '<div style="display:flex; flex-direction:column; height:100%; gap:14px;">' +
         '<div class="slide-header-bar with-mini" style="margin-bottom:0;">' +
@@ -5172,14 +5297,14 @@
           '<h1 class="subjudul" style="font-size:48px;">' + escapeHtml(q.nama) + '</h1>' +
           '<button id="btn-s25-backup" class="btn" type="button" style="font-size:22px; padding:8px 16px;">' + (state.s25UseBackup ? "◀ Kembali ke 5 Soal" : "🔄 Soal Cadangan") + '</button>' +
         '</div>' +
-        '<div class="s25-main">' +
+        '<div class="s25-main" data-interactive="true">' +
           renderSpritePanel(d.gambar, 3, 2, q.col, q.row, q.nama, "height:100%;") +
-          '<div class="kartu" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:18px;">' +
-            '<div style="font-size:36px; font-weight:900;">ALAMI atau BUATAN?</div>' +
-            '<div id="tc-timer-val" style="font-size:100px; font-weight:900; font-variant-numeric:tabular-nums; color:var(--stamp-red); line-height:1;">5</div>' +
+          '<div class="kartu" data-interactive="true" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:14px; padding:20px 28px;">' +
+            '<div style="font-size:34px; font-weight:900;">ALAMI atau BUATAN?</div>' +
+            '<div id="tc-timer-val" style="font-size:94px; font-weight:900; font-variant-numeric:tabular-nums; color:var(--stamp-red); line-height:1;">5</div>' +
             '<div class="embed-timer-bar-wrap" style="max-width:440px;"><div id="tc-timer-fill" class="embed-timer-bar-fill" style="width:100%; background:var(--accent-gold);"></div></div>' +
-            '<button id="btn-tc-start5" class="btn btn-emas" type="button" style="font-size:30px;">⏱️ Mulai 5 Detik</button>' +
-            (showAns ? '<div class="s3-answer-box pop-in" style="background:' + (isAlami ? "var(--alami)" : "var(--buatan)") + '; color:#FFF;">' + (isAlami ? "🌳 " : "🛠️ ") + q.jawab + '</div><p class="teks-kecil pop-in">' + escapeHtml(q.info) + '</p>' : '<p class="teks-kecil" style="color:var(--text-muted);">Klik untuk membuka jawaban!</p>') +
+            '<button id="btn-tc-start5" class="btn btn-emas" type="button" style="font-size:28px; padding:10px 24px;">⏱️ Mulai 5 Detik</button>' +
+            answerArea +
           '</div>' +
         '</div>' +
         teamBar +
@@ -5506,12 +5631,143 @@
       updateEmbedTimerDisplay();
     }
 
+    var RODA_NOMOR_PALETTE = ["#E53935", "#1E88E5", "#43A047", "#F9A825", "#8E24AA", "#00897B"];
+    var RODA_NOMOR_FG = ["#FFF", "#FFF", "#FFF", "#17324D", "#FFF", "#FFF"];
+
+    function shuffleArrayWithCrypto(arr, avoidSame) {
+      var copy = arr.slice();
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = cryptoRandInt(i + 1);
+        var tmp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = tmp;
+      }
+      if (avoidSame && copy.length > 1) {
+        var same = true;
+        for (var k = 0; k < copy.length; k++) {
+          if (copy[k] !== arr[k]) { same = false; break; }
+        }
+        if (same) {
+          var swapIdx = 1 + cryptoRandInt(copy.length - 1);
+          var t0 = copy[0];
+          copy[0] = copy[swapIdx];
+          copy[swapIdx] = t0;
+        }
+      }
+      return copy;
+    }
+
+    function ensureOrderArray(orderArr, len, oneBased) {
+      if (Array.isArray(orderArr) && orderArr.length === len) return orderArr;
+      var out = [];
+      for (var i = 0; i < len; i++) out.push(oneBased ? (i + 1) : i);
+      return out;
+    }
+
+    function shuffleEmbedRoda(silent) {
+      if (state.embedRodaSpinning) return;
+      var teamBase = [];
+      for (var i = 0; i < state.teams.length; i++) teamBase.push(i);
+      var prevTeams = ensureOrderArray(state.embedTeamOrder, state.teams.length, false);
+      var prevNums = ensureOrderArray(state.embedNomorOrder, 6, true);
+      var prevColors = ensureOrderArray(state.embedNomorColorOrder, 6, false);
+
+      state.embedTeamOrder = shuffleArrayWithCrypto(prevTeams.length === teamBase.length ? prevTeams : teamBase, true);
+      state.embedNomorOrder = shuffleArrayWithCrypto(prevNums, true);
+      state.embedNomorColorOrder = shuffleArrayWithCrypto(prevColors, true);
+      state.embedRodaAngle = (state.embedRodaAngle + 45 + cryptoRandInt(270)) % 360;
+      state.embedHighlightNomor = null;
+
+      drawEmbedRodaSVG();
+      updateEmbedRodaControlsUI();
+      if (!silent) {
+        AudioEngine.tik();
+        showToast("🔀 Urutan posisi tim, nomor & warna roda diacak!");
+      }
+    }
+
+    function getEmbedRodaSegments() {
+      if (state.embedRodaMode === "nomor") {
+        var numOrder = ensureOrderArray(state.embedNomorOrder, 6, true);
+        var colOrder = ensureOrderArray(state.embedNomorColorOrder, 6, false);
+        return numOrder.map(function (num, idx) {
+          var cIdx = colOrder[idx] % RODA_NOMOR_PALETTE.length;
+          return {
+            label: "Nomor " + num,
+            short: String(num),
+            color: RODA_NOMOR_PALETTE[cIdx],
+            fg: RODA_NOMOR_FG[cIdx],
+            nomor: num
+          };
+        });
+      }
+      var teamOrder = ensureOrderArray(state.embedTeamOrder, state.teams.length, false);
+      return teamOrder.map(function (teamIdx) {
+        var t = state.teams[teamIdx];
+        return {
+          label: t.nama,
+          short: "T" + (teamIdx + 1),
+          color: t.warna,
+          fg: t.teks,
+          teamIdx: teamIdx
+        };
+      });
+    }
+
+    function updateEmbedRodaControlsUI() {
+      var modeNow = state.embedRodaMode || "tim-nomor";
+      var modeBtns = document.querySelectorAll(".embed-roda-mode-btn");
+      for (var i = 0; i < modeBtns.length; i++) {
+        modeBtns[i].classList.toggle("btn-emas", modeBtns[i].getAttribute("data-mode") === modeNow);
+      }
+      var btnSpin = document.getElementById("btn-embed-spin");
+      if (btnSpin) {
+        btnSpin.textContent = modeNow === "nomor"
+          ? "🎡 PUTAR RODA NOMOR (1–6)!"
+          : (modeNow === "tim" ? "🎡 PUTAR RODA WARNA TIM!" : "🎡 PUTAR RODA TIM + NOMOR!");
+      }
+
+      var strip = document.getElementById("embed-nomor-strip");
+      if (strip) {
+        if (modeNow === "tim") {
+          var tOrder = ensureOrderArray(state.embedTeamOrder, state.teams.length, false);
+          strip.innerHTML = '<span style="font-size:22px; font-weight:800; color:var(--text-muted); margin-right:4px;">Urutan Warna Tim:</span>' +
+            tOrder.map(function (tIdx) {
+              var tm = state.teams[tIdx];
+              var used = state.embedUsedTeams.indexOf(tIdx) !== -1;
+              return '<span class="embed-nomor-chip' + (used ? " used" : "") + '" style="background:' + tm.warna + '; color:' + tm.teks + ';">T' + (tIdx + 1) + '</span>';
+            }).join("");
+        } else {
+          var nOrder = ensureOrderArray(state.embedNomorOrder, 6, true);
+          var cOrder = ensureOrderArray(state.embedNomorColorOrder, 6, false);
+          var prefix = modeNow === "nomor" ? "Urutan Nomor & Warna:" : "Nomor Kepala Acak:";
+          strip.innerHTML = '<span style="font-size:22px; font-weight:800; color:var(--text-muted); margin-right:4px;">' + prefix + '</span>' +
+            nOrder.map(function (num, idx) {
+              var cIdx = cOrder[idx] % RODA_NOMOR_PALETTE.length;
+              var isAct = state.embedHighlightNomor === num;
+              var isUsed = !isAct && state.embedUsedNumbers.indexOf(num) !== -1;
+              return '<span class="embed-nomor-chip' + (isAct ? " active" : "") + (isUsed ? " used" : "") +
+                '" style="background:' + RODA_NOMOR_PALETTE[cIdx] + '; color:' + RODA_NOMOR_FG[cIdx] + ';">' + num + '</span>';
+            }).join("");
+        }
+      }
+
+      var fairEl = document.getElementById("embed-roda-fair-info");
+      if (fairEl) {
+        if (modeNow === "nomor") {
+          fairEl.textContent = "Giliran adil: " + state.embedUsedNumbers.length + "/6 Nomor sudah tampil";
+        } else if (modeNow === "tim") {
+          fairEl.textContent = "Giliran adil: " + state.embedUsedTeams.length + "/" + state.teams.length + " Tim sudah tampil";
+        } else {
+          fairEl.textContent = "Giliran adil: " + state.embedUsedTeams.length + "/" + state.teams.length + " Tim · " + state.embedUsedNumbers.length + "/6 Nomor";
+        }
+      }
+    }
+
     function drawEmbedRodaSVG() {
       var svg = document.getElementById("embed-roda-svg");
       if (!svg) return;
-      var segs = state.teams.map(function (t, idx) {
-        return { label: t.nama, short: "T" + (idx + 1), color: t.warna, fg: t.teks, teamIdx: idx };
-      });
+      var segs = getEmbedRodaSegments();
       var count = segs.length;
       var cx = 210, cy = 210, r = 195;
       var sliceDeg = 360 / count;
@@ -5528,11 +5784,16 @@
         var d = "M " + cx + " " + cy + " L " + x1.toFixed(2) + " " + y1.toFixed(2) +
           " A " + r + " " + r + " 0 0 1 " + x2.toFixed(2) + " " + y2.toFixed(2) + " Z";
         content += '<path d="' + d + '" fill="' + segs[i].color + '" stroke="#17324D" stroke-width="4"></path>';
-        var midRad = ((startDeg + sliceDeg / 2) * Math.PI) / 180;
+        var midDeg = startDeg + sliceDeg / 2;
+        var midRad = (midDeg * Math.PI) / 180;
         var tx = cx + (r * 0.62) * Math.cos(midRad);
         var ty = cy + (r * 0.62) * Math.sin(midRad);
+        var fontSize = state.embedRodaMode === "nomor" ? "44" : "38";
+        var textRot = (midDeg + 90).toFixed(1);
+        var decAttr = segs[i].short === "6" ? ' text-decoration="underline"' : '';
         content += '<text x="' + tx.toFixed(1) + '" y="' + ty.toFixed(1) + '" fill="' + segs[i].fg +
-          '" font-size="38" font-weight="900" text-anchor="middle" dominant-baseline="central">' +
+          '" font-size="' + fontSize + '" font-weight="900" text-anchor="middle" dominant-baseline="central"' +
+          decAttr + ' transform="rotate(' + textRot + ' ' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ')">' +
           escapeHtml(segs[i].short) + '</text>';
       }
       content += '<circle cx="210" cy="210" r="34" fill="#FFF8EC" stroke="#17324D" stroke-width="5"></circle></g>';
@@ -5541,17 +5802,56 @@
 
     function spinEmbedRoda() {
       if (state.embedRodaSpinning) return;
-      var count = state.teams.length;
+      var modeNow = state.embedRodaMode || "tim-nomor";
+      var segs = getEmbedRodaSegments();
+      var count = segs.length;
       var sliceDeg = 360 / count;
-      var pickIdx = cryptoRandInt(count);
-      var pickNomor = 1;
-      for (var attempt = 0; attempt < 10; attempt++) {
-        pickIdx = cryptoRandInt(count);
-        var team = state.teams[pickIdx];
-        var maxN = Math.max(1, team.anggota ? team.anggota.length : 5);
-        pickNomor = cryptoRandInt(maxN) + 1;
-        var key = "T" + (pickIdx + 1) + "-N" + pickNomor;
-        if (key !== state.lastRodaResult) break;
+
+      var pickIdx = 0;
+      var winTeamIdx = 0;
+      var pickNomor = null;
+
+      if (modeNow === "nomor") {
+        var availNumsOnly = [];
+        for (var n = 1; n <= 6; n++) {
+          if (state.embedUsedNumbers.indexOf(n) === -1) availNumsOnly.push(n);
+        }
+        if (availNumsOnly.length === 0) {
+          state.embedUsedNumbers = [];
+          availNumsOnly = [1, 2, 3, 4, 5, 6];
+          showToast("🔄 Semua nomor 1–6 sudah tampil! Putaran baru dimulai.");
+        }
+        pickNomor = availNumsOnly[cryptoRandInt(availNumsOnly.length)];
+        for (var si = 0; si < segs.length; si++) {
+          if (segs[si].nomor === pickNomor) { pickIdx = si; break; }
+        }
+      } else {
+        var availTeams = [];
+        for (var ti = 0; ti < state.teams.length; ti++) {
+          if (state.embedUsedTeams.indexOf(ti) === -1) availTeams.push(ti);
+        }
+        if (availTeams.length === 0) {
+          state.embedUsedTeams = [];
+          for (var tiAll = 0; tiAll < state.teams.length; tiAll++) availTeams.push(tiAll);
+          showToast("🔄 Semua 5 tim sudah tampil! Putaran baru dimulai.");
+        }
+        winTeamIdx = availTeams[cryptoRandInt(availTeams.length)];
+        for (var sj = 0; sj < segs.length; sj++) {
+          if (segs[sj].teamIdx === winTeamIdx) { pickIdx = sj; break; }
+        }
+        if (modeNow === "tim-nomor") {
+          var teamObj = state.teams[winTeamIdx];
+          var maxN = Math.max(1, teamObj.anggota ? teamObj.anggota.length : 5);
+          var availMemberNums = [];
+          for (var mn = 1; mn <= maxN; mn++) {
+            if (state.embedUsedNumbers.indexOf(mn) === -1) availMemberNums.push(mn);
+          }
+          if (availMemberNums.length === 0) {
+            state.embedUsedNumbers = [];
+            for (var mnAll = 1; mnAll <= maxN; mnAll++) availMemberNums.push(mnAll);
+          }
+          pickNomor = availMemberNums[cryptoRandInt(availMemberNums.length)];
+        }
       }
 
       var targetCenter = (pickIdx + 0.5) * sliceDeg;
@@ -5563,10 +5863,12 @@
       var duration = KONTEN.pengaturan.durasiRodaDetik * 1000;
       var startTime = performance.now();
       var lastSeg = -1;
+      var nOrder = ensureOrderArray(state.embedNomorOrder, 6, true);
+      var numCycle = 0;
 
       state.embedRodaSpinning = true;
       var resEl = document.getElementById("embed-roda-result");
-      if (resEl) resEl.innerHTML = '<div style="font-size:36px; font-weight:800; color:var(--text-muted);">Memutar roda...</div>';
+      if (resEl) resEl.innerHTML = '<div style="font-size:34px; font-weight:800; color:var(--text-muted);">Memutar roda...</div>';
 
       function frame(now) {
         var t = Math.min(1, (now - startTime) / duration);
@@ -5578,21 +5880,47 @@
         if (seg !== lastSeg && t < 1) {
           AudioEngine.tik();
           lastSeg = seg;
+          if (modeNow === "tim-nomor" || modeNow === "nomor") {
+            state.embedHighlightNomor = nOrder[numCycle % nOrder.length];
+            numCycle++;
+            updateEmbedRodaControlsUI();
+          }
         }
         if (t < 1) {
           requestAnimationFrame(frame);
         } else {
           state.embedRodaSpinning = false;
           AudioEngine.ding();
-          var winTeam = state.teams[pickIdx];
-          state.lastRodaResult = "T" + (pickIdx + 1) + "-N" + pickNomor;
-          var memberName = (winTeam.anggota && winTeam.anggota[pickNomor - 1]) ? winTeam.anggota[pickNomor - 1] : "";
-          var outHtml = '<div style="font-size:26px; font-weight:800; color:var(--text-muted);">Yang Menjawab:</div>' +
-            '<div class="pop-in" style="font-size:48px; font-weight:900; padding:10px 24px; border-radius:20px; border:4px solid #17324D; background:' + winTeam.warna + '; color:' + winTeam.teks + ';">TIM ' + (pickIdx + 1) + ' · NOMOR ' + pickNomor + '</div>' +
-            (memberName ? '<div class="pop-in" style="font-size:34px; font-weight:800; margin-top:4px;">👤 ' + escapeHtml(memberName) + '</div>' : '');
+          var outHtml = "";
+          if (modeNow === "nomor") {
+            if (state.embedUsedNumbers.indexOf(pickNomor) === -1) state.embedUsedNumbers.push(pickNomor);
+            state.embedHighlightNomor = pickNomor;
+            state.lastRodaResult = "embed-nomor-" + pickNomor;
+            var winSeg = segs[pickIdx];
+            outHtml = '<div style="font-size:26px; font-weight:800; color:var(--text-muted);">Nomor Kepala Terpilih:</div>' +
+              '<div class="pop-in" style="font-size:54px; font-weight:900; padding:10px 30px; border-radius:20px; border:4px solid #17324D; background:' + winSeg.color + '; color:' + winSeg.fg + ';">NOMOR ' + pickNomor + '</div>';
+          } else if (modeNow === "tim") {
+            if (state.embedUsedTeams.indexOf(winTeamIdx) === -1) state.embedUsedTeams.push(winTeamIdx);
+            var winTeamOnly = state.teams[winTeamIdx];
+            state.embedHighlightNomor = null;
+            state.lastRodaResult = "embed-tim-" + winTeamIdx;
+            outHtml = '<div style="font-size:26px; font-weight:800; color:var(--text-muted);">Tim Terpilih:</div>' +
+              '<div class="pop-in" style="font-size:50px; font-weight:900; padding:10px 26px; border-radius:20px; border:4px solid #17324D; background:' + winTeamOnly.warna + '; color:' + winTeamOnly.teks + ';">' + escapeHtml(winTeamOnly.nama) + '</div>';
+          } else {
+            if (state.embedUsedTeams.indexOf(winTeamIdx) === -1) state.embedUsedTeams.push(winTeamIdx);
+            if (state.embedUsedNumbers.indexOf(pickNomor) === -1) state.embedUsedNumbers.push(pickNomor);
+            state.embedHighlightNomor = pickNomor;
+            var winTeam = state.teams[winTeamIdx];
+            state.lastRodaResult = "T" + (winTeamIdx + 1) + "-N" + pickNomor;
+            var memberName = (winTeam.anggota && winTeam.anggota[pickNomor - 1]) ? winTeam.anggota[pickNomor - 1] : "";
+            outHtml = '<div style="font-size:26px; font-weight:800; color:var(--text-muted);">Yang Menjawab:</div>' +
+              '<div class="pop-in" style="font-size:46px; font-weight:900; padding:10px 24px; border-radius:20px; border:4px solid #17324D; background:' + winTeam.warna + '; color:' + winTeam.teks + ';">TIM ' + (winTeamIdx + 1) + ' · NOMOR ' + pickNomor + '</div>' +
+              (memberName ? '<div class="pop-in" style="font-size:32px; font-weight:800; margin-top:4px;">👤 ' + escapeHtml(memberName) + '</div>' : '');
+          }
           state.embedRodaResultHtml = outHtml;
           var targetRes = document.getElementById("embed-roda-result");
           if (targetRes) targetRes.innerHTML = outHtml;
+          updateEmbedRodaControlsUI();
         }
       }
       requestAnimationFrame(frame);
@@ -5998,8 +6326,38 @@
         }
         if (state.stepIdx === 4) {
           drawEmbedRodaSVG();
+          updateEmbedRodaControlsUI();
           var btnESpin = document.getElementById("btn-embed-spin");
           if (btnESpin) btnESpin.addEventListener("click", function (e) { e.stopPropagation(); spinEmbedRoda(); });
+          var btnEShuffle = document.getElementById("btn-embed-shuffle");
+          if (btnEShuffle) btnEShuffle.addEventListener("click", function (e) { e.stopPropagation(); shuffleEmbedRoda(false); });
+          var btnEResetFair = document.getElementById("btn-embed-reset-fair");
+          if (btnEResetFair) {
+            btnEResetFair.addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (state.embedRodaSpinning) return;
+              state.embedUsedTeams = [];
+              state.embedUsedNumbers = [];
+              state.embedHighlightNomor = null;
+              AudioEngine.tik();
+              updateEmbedRodaControlsUI();
+              showToast("↺ Giliran adil tim & nomor direset!");
+            });
+          }
+          var eModeBtns = document.querySelectorAll(".embed-roda-mode-btn");
+          for (var em = 0; em < eModeBtns.length; em++) {
+            eModeBtns[em].addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (state.embedRodaSpinning) return;
+              var nextMode = this.getAttribute("data-mode");
+              if (!nextMode || nextMode === state.embedRodaMode) return;
+              state.embedRodaMode = nextMode;
+              state.embedRodaResultHtml = "";
+              state.embedHighlightNomor = null;
+              AudioEngine.tik();
+              renderSlide();
+            });
+          }
         }
       }
 
@@ -6028,6 +6386,21 @@
           btnBackup.addEventListener("click", function (e) {
             e.stopPropagation();
             state.s25UseBackup = !state.s25UseBackup;
+            if (state.s25UseBackup && state.s25Revealed) {
+              state.s25Revealed.backup = false;
+            }
+            renderSlide();
+          });
+        }
+        var btnReveal = document.getElementById("btn-s25-reveal");
+        if (btnReveal) {
+          btnReveal.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var qKey = this.getAttribute("data-qkey") || "q0";
+            if (!state.s25Revealed) state.s25Revealed = {};
+            state.s25Revealed[qKey] = !state.s25Revealed[qKey];
+            if (state.s25Revealed[qKey]) AudioEngine.ding();
+            else AudioEngine.tik();
             renderSlide();
           });
         }
@@ -6163,6 +6536,16 @@
     /* =====================================================================
        NAVIGASI SLIDE & LANGKAH
        ===================================================================== */
+    function prepareSlideTransition(newIdx) {
+      state.embedRodaResultHtml = "";
+      state.embedHighlightNomor = null;
+      var newS = KONTEN.slides[newIdx];
+      if (newS && (newS.no === 21 || newS.no === 22 || newS.no === 23) && state.embedRodaSlideNo !== newS.no) {
+        state.embedRodaSlideNo = newS.no;
+        shuffleEmbedRoda(true);
+      }
+    }
+
     function nextStep() {
       // Mulai jam pelajaran otomatis saat keluar dari Slide 1
       if (state.slideIdx === 0 && !state.lessonStartTime) {
@@ -6180,6 +6563,7 @@
         state.slideIdx++;
         state.stepIdx = 0;
         state.s4TypedDone = false;
+        prepareSlideTransition(state.slideIdx);
         renderSlide();
       }
     }
@@ -6192,6 +6576,7 @@
         state.slideIdx--;
         var prevS = KONTEN.slides[state.slideIdx];
         state.stepIdx = prevS.langkah || 0;
+        prepareSlideTransition(state.slideIdx);
         renderSlide();
       }
     }
@@ -6202,9 +6587,11 @@
         state.lessonStartTime = Date.now();
         saveStorage("lessonStartTime", state.lessonStartTime);
       }
+      var changed = target !== state.slideIdx;
       state.slideIdx = target;
       state.stepIdx = 0;
       state.s4TypedDone = false;
+      if (changed) prepareSlideTransition(target);
       renderSlide();
     }
 
@@ -6285,17 +6672,50 @@
       return Math.floor(Math.random() * maxExclusive);
     }
 
+    function shuffleGlobalRoda(silent) {
+      if (state.rodaSpinning) return;
+      var teamBase = [];
+      for (var i = 0; i < state.teams.length; i++) teamBase.push(i);
+      var prevTeams = ensureOrderArray(state.rodaTeamOrder, state.teams.length, false);
+      var prevNums = ensureOrderArray(state.rodaNomorOrder, 6, true);
+      var prevColors = ensureOrderArray(state.rodaNomorColorOrder, 6, false);
+
+      state.rodaTeamOrder = shuffleArrayWithCrypto(prevTeams.length === teamBase.length ? prevTeams : teamBase, true);
+      state.rodaNomorOrder = shuffleArrayWithCrypto(prevNums, true);
+      state.rodaNomorColorOrder = shuffleArrayWithCrypto(prevColors, true);
+      state.rodaAngle = (state.rodaAngle + 45 + cryptoRandInt(270)) % 360;
+      drawRodaSVG();
+      updateGlobalRodaFairUI();
+      if (!silent) {
+        AudioEngine.tik();
+        showToast("🔀 Urutan nomor & warna roda diacak!");
+      }
+    }
+
+    function updateGlobalRodaFairUI() {
+      var info = document.getElementById("roda-fair-info");
+      if (!info) return;
+      if (state.rodaMode === "nomor") {
+        info.textContent = "Giliran adil: " + state.rodaUsedNumbers.length + "/6 Nomor sudah tampil";
+      } else if (state.rodaMode === "tim") {
+        info.textContent = "Giliran adil: " + state.rodaUsedTeams.length + "/" + state.teams.length + " Tim sudah tampil";
+      } else {
+        info.textContent = "Giliran adil: " + state.rodaUsedTeams.length + "/" + state.teams.length + " Tim · " + state.rodaUsedNumbers.length + "/6 Nomor";
+      }
+    }
+
     function getRodaSegments() {
       if (state.rodaMode === "nomor") {
-        var colors = ["#E53935", "#1E88E5", "#43A047", "#F9A825", "#8E24AA", "#00897B"];
-        var fg = ["#FFF", "#FFF", "#FFF", "#17324D", "#FFF", "#FFF"];
-        var segs = [];
-        for (var n = 1; n <= 6; n++) {
-          segs.push({ label: "Nomor " + n, short: String(n), color: colors[n - 1], fg: fg[n - 1], nomor: n });
-        }
-        return segs;
+        var numOrder = ensureOrderArray(state.rodaNomorOrder, 6, true);
+        var colOrder = ensureOrderArray(state.rodaNomorColorOrder, 6, false);
+        return numOrder.map(function (num, idx) {
+          var cIdx = colOrder[idx] % RODA_NOMOR_PALETTE.length;
+          return { label: "Nomor " + num, short: String(num), color: RODA_NOMOR_PALETTE[cIdx], fg: RODA_NOMOR_FG[cIdx], nomor: num };
+        });
       }
-      return state.teams.map(function (t, idx) {
+      var teamOrder = ensureOrderArray(state.rodaTeamOrder, state.teams.length, false);
+      return teamOrder.map(function (idx) {
+        var t = state.teams[idx];
         return { label: t.nama, short: "T" + (idx + 1), color: t.warna, fg: t.teks, teamIdx: idx };
       });
     }
@@ -6325,8 +6745,12 @@
         var midRad = (midDeg * Math.PI) / 180;
         var tx = cx + (r * 0.62) * Math.cos(midRad);
         var ty = cy + (r * 0.62) * Math.sin(midRad);
+        var fontSize = state.rodaMode === "nomor" ? "44" : "38";
+        var textRot = (midDeg + 90).toFixed(1);
+        var decAttr = segs[i].short === "6" ? ' text-decoration="underline"' : '';
         content += '<text x="' + tx.toFixed(1) + '" y="' + ty.toFixed(1) + '" fill="' + segs[i].fg +
-          '" font-size="38" font-weight="900" text-anchor="middle" dominant-baseline="central">' +
+          '" font-size="' + fontSize + '" font-weight="900" text-anchor="middle" dominant-baseline="central"' +
+          decAttr + ' transform="rotate(' + textRot + ' ' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ')">' +
           escapeHtml(segs[i].short) + '</text>';
       }
       content += '<circle cx="210" cy="210" r="34" fill="#FFF8EC" stroke="#17324D" stroke-width="5"></circle></g>';
@@ -6339,24 +6763,50 @@
       var count = segs.length;
       var sliceDeg = 360 / count;
 
-      // Pilih pemenang acak tanpa mengulang hasil persis sebelumnya
-      var pickIdx = cryptoRandInt(count);
+      // Pilih pemenang acak adil (merata antar tim dan nomor)
+      var pickIdx = 0;
+      var winTeamIdx = 0;
       var pickNomor = null;
-      var attempts = 0;
 
-      while (attempts < 10) {
-        pickIdx = cryptoRandInt(count);
-        if (state.rodaMode === "tim-nomor") {
-          var team = state.teams[pickIdx];
-          var maxN = Math.max(1, team.anggota ? team.anggota.length : 5);
-          pickNomor = cryptoRandInt(maxN) + 1;
-          var key = "T" + (pickIdx + 1) + "-N" + pickNomor;
-          if (key !== state.lastRodaResult) break;
-        } else {
-          var keySingle = state.rodaMode + "-" + pickIdx;
-          if (keySingle !== state.lastRodaResult) break;
+      if (state.rodaMode === "nomor") {
+        var availNums = [];
+        for (var n = 1; n <= 6; n++) {
+          if (state.rodaUsedNumbers.indexOf(n) === -1) availNums.push(n);
         }
-        attempts++;
+        if (availNums.length === 0) {
+          state.rodaUsedNumbers = [];
+          availNums = [1, 2, 3, 4, 5, 6];
+        }
+        pickNomor = availNums[cryptoRandInt(availNums.length)];
+        for (var si = 0; si < segs.length; si++) {
+          if (segs[si].nomor === pickNomor) { pickIdx = si; break; }
+        }
+      } else {
+        var availTeams = [];
+        for (var ti = 0; ti < state.teams.length; ti++) {
+          if (state.rodaUsedTeams.indexOf(ti) === -1) availTeams.push(ti);
+        }
+        if (availTeams.length === 0) {
+          state.rodaUsedTeams = [];
+          for (var tiAll = 0; tiAll < state.teams.length; tiAll++) availTeams.push(tiAll);
+        }
+        winTeamIdx = availTeams[cryptoRandInt(availTeams.length)];
+        for (var sj = 0; sj < segs.length; sj++) {
+          if (segs[sj].teamIdx === winTeamIdx) { pickIdx = sj; break; }
+        }
+        if (state.rodaMode === "tim-nomor") {
+          var team = state.teams[winTeamIdx];
+          var maxN = Math.max(1, team.anggota ? team.anggota.length : 5);
+          var availMemNums = [];
+          for (var mn = 1; mn <= maxN; mn++) {
+            if (state.rodaUsedNumbers.indexOf(mn) === -1) availMemNums.push(mn);
+          }
+          if (availMemNums.length === 0) {
+            state.rodaUsedNumbers = [];
+            for (var mnAll = 1; mnAll <= maxN; mnAll++) availMemNums.push(mnAll);
+          }
+          pickNomor = availMemNums[cryptoRandInt(availMemNums.length)];
+        }
       }
 
       // Hitung sudut berhenti agar segmen pickIdx berada di bawah penunjuk atas (0 deg relatif)
@@ -6409,24 +6859,32 @@
 
     function showRodaWinner(pickIdx, pickNomor, segs) {
       var resBox = document.getElementById("roda-result");
+      var winSeg = segs[pickIdx];
       if (state.rodaMode === "tim") {
-        state.lastRodaResult = "tim-" + pickIdx;
-        var t = state.teams[pickIdx];
+        var teamIdxOnly = winSeg.teamIdx;
+        if (state.rodaUsedTeams.indexOf(teamIdxOnly) === -1) state.rodaUsedTeams.push(teamIdxOnly);
+        state.lastRodaResult = "tim-" + teamIdxOnly;
+        var t = state.teams[teamIdxOnly];
         resBox.innerHTML = '<div style="font-size:28px; font-weight:800; color:var(--text-muted);">Tim Terpilih:</div>' +
           '<div class="pop-in" style="font-size:52px; font-weight:900; padding:12px 26px; border-radius:20px; border:4px solid #17324D; background:' + t.warna + '; color:' + t.teks + ';">' + escapeHtml(t.nama) + '</div>';
       } else if (state.rodaMode === "nomor") {
-        state.lastRodaResult = "nomor-" + pickIdx;
-        var num = segs[pickIdx].nomor;
+        var num = winSeg.nomor;
+        if (state.rodaUsedNumbers.indexOf(num) === -1) state.rodaUsedNumbers.push(num);
+        state.lastRodaResult = "nomor-" + num;
         resBox.innerHTML = '<div style="font-size:28px; font-weight:800; color:var(--text-muted);">Nomor Kepala Terpilih:</div>' +
-          '<div class="pop-in" style="font-size:66px; font-weight:900; color:var(--text-main);">NOMOR ' + num + '</div>';
+          '<div class="pop-in" style="font-size:62px; font-weight:900; padding:10px 30px; border-radius:20px; border:4px solid #17324D; background:' + winSeg.color + '; color:' + winSeg.fg + ';">NOMOR ' + num + '</div>';
       } else {
-        var team = state.teams[pickIdx];
-        state.lastRodaResult = "T" + (pickIdx + 1) + "-N" + pickNomor;
+        var winTeamIdx = winSeg.teamIdx;
+        if (state.rodaUsedTeams.indexOf(winTeamIdx) === -1) state.rodaUsedTeams.push(winTeamIdx);
+        if (state.rodaUsedNumbers.indexOf(pickNomor) === -1) state.rodaUsedNumbers.push(pickNomor);
+        var team = state.teams[winTeamIdx];
+        state.lastRodaResult = "T" + (winTeamIdx + 1) + "-N" + pickNomor;
         var memberName = (team.anggota && team.anggota[pickNomor - 1]) ? team.anggota[pickNomor - 1] : "";
         resBox.innerHTML = '<div style="font-size:26px; font-weight:800; color:var(--text-muted);">Waktunya Menjawab:</div>' +
-          '<div class="pop-in" style="font-size:48px; font-weight:900; padding:10px 24px; border-radius:20px; border:4px solid #17324D; background:' + team.warna + '; color:' + team.teks + ';">TIM ' + (pickIdx + 1) + ' · NOMOR ' + pickNomor + '</div>' +
+          '<div class="pop-in" style="font-size:48px; font-weight:900; padding:10px 24px; border-radius:20px; border:4px solid #17324D; background:' + team.warna + '; color:' + team.teks + ';">TIM ' + (winTeamIdx + 1) + ' · NOMOR ' + pickNomor + '</div>' +
           (memberName ? '<div class="pop-in" style="font-size:34px; font-weight:800; margin-top:6px;">👤 ' + escapeHtml(memberName) + '</div>' : '');
       }
+      updateGlobalRodaFairUI();
     }
 
     /* =====================================================================
@@ -6546,7 +7004,7 @@
       state.activePanel = name;
 
       if (name === "poin") renderScoreboard();
-      else if (name === "roda") drawRodaSVG();
+      else if (name === "roda") { drawRodaSVG(); updateGlobalRodaFairUI(); }
       else if (name === "timer") {
         state.timerMinimized = false;
         updateTimerUI();
@@ -6865,9 +7323,21 @@
           rodaModeBtns[k].classList.toggle("btn-emas", rodaModeBtns[k] === this);
         }
         drawRodaSVG();
+        updateGlobalRodaFairUI();
       });
     }
     document.getElementById("btn-spin-roda").addEventListener("click", spinRoda);
+    document.getElementById("btn-shuffle-roda").addEventListener("click", function () {
+      shuffleGlobalRoda(false);
+    });
+    document.getElementById("btn-reset-fair-roda").addEventListener("click", function () {
+      if (state.rodaSpinning) return;
+      state.rodaUsedTeams = [];
+      state.rodaUsedNumbers = [];
+      AudioEngine.tik();
+      updateGlobalRodaFairUI();
+      showToast("↺ Giliran adil roda direset!");
+    });
 
     // Timer kontrol
     var timerPresets = document.querySelectorAll(".timer-preset");
@@ -7138,6 +7608,8 @@
     /* =====================================================================
        INISIALISASI AWAL
        ===================================================================== */
+    shuffleEmbedRoda(true);
+    shuffleGlobalRoda(true);
     applySettingsUI();
     updateTimerUI();
     renderSlide();
